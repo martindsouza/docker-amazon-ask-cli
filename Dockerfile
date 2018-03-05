@@ -26,6 +26,9 @@ RUN npm install -g ask-cli && \
   mkdir /home/node/.ask && \
   mkdir /home/node/app-dev
 
+# Patch for  https://github.com/martindsouza/docker-amazon-ask-cli/issues/1
+WORKDIR /$NPM_CONFIG_PREFIX/lib/node_modules/ask-cli
+RUN npm install simple-oauth2@1.5.0 --save-exact
 
 # Volumes:
 # /home/node/.ask: This is the location of the ask config folder

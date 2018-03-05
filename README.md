@@ -15,8 +15,6 @@ The purpose of this container is to be able to use the [Amazon ASK CLI (Alexa Sk
 
 <!-- /TOC -->
 
-**Note: This doesn't work right now as tokens aren't being generated. Still looking into the issue**
-
 ## Example
 
 This example will show you both how to use this container and start a simple `HelloWorld` Alexa Skill. Please read the other sections on how to properly use this container and volume configurations. Before running this example ensure that you've registered for an [Alexa Developer](https://developer.amazon.com/alexa) account
@@ -47,6 +45,7 @@ ask init --no-browser
 # A URL will be printed on screen. Copy and past into your browser
 # Login using your Amazon Developer account
 # Copy the code that is shown on the screen and past in the terminal
+# You should see a success message like: Tokens fetched and recorded in ask-cli config.
 
 # Verify profile was created
 ask init -l
@@ -74,6 +73,11 @@ docker run -it --rm \
 
 # Deploy Skill
 ask deploy -t skill
+# Success should look like:
+# -------------------- Create Skill Project --------------------
+# Profile for the deployment: [default]
+# Skill Id: amzn1.ask.skill.a....
+# Skill deployment finished.
 ```
 
 ## Usage
