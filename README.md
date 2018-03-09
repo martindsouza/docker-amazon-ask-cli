@@ -6,6 +6,9 @@ The purpose of this container is to be able to use the [Amazon ASK CLI (Alexa Sk
 
 - [docker-amazon-ask-cli](#docker-amazon-ask-cli)
   - [Example](#example)
+  - [AWS Config (optional)](#aws-config-optional)
+    - [`aws configure`](#aws-configure)
+    - [Setting `credentials` and `config` file](#setting-credentials-and-config-file)
   - [Usage](#usage)
     - [Run One Command](#run-one-command)
     - [Run `bash`, then run `ask`](#run-bash-then-run-ask)
@@ -17,68 +20,107 @@ The purpose of this container is to be able to use the [Amazon ASK CLI (Alexa Sk
 
 ## Example
 
-This example will show you both how to use this container and start a simple `HelloWorld` Alexa Skill. Please read the other sections on how to properly use this container and volume configurations. Before running this example ensure that you've registered for an [Alexa Developer](https://developer.amazon.com/alexa) account
+This example will show you both how to use this container and start a simple `HelloWorld` Alexa Skill. In this example we'll assume that AWS has been configured [see below](#aws-config-optional). 
+
+Please read the other sections on how to properly use this container and volume configurations. Before running this example ensure that you've registered for an [Alexa Developer](https://developer.amazon.com/alexa) account
+
 
 ```bash
 # Get image
 docker pull martindsouza/amazon-ask-cli
 
-# Create a ASK configuration folder.
+# Create a ASK configuration folders.
 cd ~
-mkdir ask-config
-mkdir alexa-apps
+mkdir alexa-demo \
+  alexa-demo/ask-config \
+  alexa-demo/aws-config \
+  alexa-demo/app
 
-ASK_CONFIG=~/ask-config
-ASK_APP=~/alexa-apps
+# Note copy the aws-config information (see below) to the aws-config folder
 
-docker run -it --rm \
-  -v $ASK_CONFIG:/home/node/.ask \
-  -v $ASK_APP:/home/node/app-dev \
-  martindsouza/amazon-ask-cli:latest \
-  bash
+# To help simply writing out a full docker run command each time will use an alias
+alias alexa="docker run -it --rm \
+  -v ~/alexa-demo/ask-config:/home/node/.ask \
+  -v ~/alexa-demo/aws-config:/home/node/.aws \
+  -v ~/alexa-demo/app:/home/node/app \
+  martindsouza/amazon-ask-cli:latest "
 
-# This will open Bash in the container.
+# For windows users you'll need to run the following each time (unless you have an alternative to alias)
+# docker run -it --rm \
+#   -v ~/alexa-demo/ask-config:/home/node/.ask \
+#   -v ~/alexa-demo/aws-config:/home/node/.aws \
+#   -v ~/alexa-demo/app:/home/node/app \
+#   martindsouza/amazon-ask-cli:latest \
+#   <command> 
+
 
 # Configure ASK
-ask init --no-browser
-# There is no AWS credential setup yet, do you want to continue the initialization?: Answer Y
+alexa ask init --no-browser
+
+# ? Please choose one from the following AWS profiles for skill's Lambda function deployment.
+#  default
+# Chose default and hit enter
+#
 # A URL will be printed on screen. Copy and past into your browser
 # Login using your Amazon Developer account
 # Copy the code that is shown on the screen and past in the terminal
 # You should see a success message like: Tokens fetched and recorded in ask-cli config.
 
-# Verify profile was created
-ask init -l
 
+# Verify profile was created
+alexa ask init -l
 # Should return:
-  # Profile              Associated AWS Profile
-  # [default]                 ** NULL **
+# Profile              Associated AWS Profile
+# [default]                 ** NULL **
+
 
 # Create a new app:
-ask new --skill-name HelloWorld
+alexa ask new --skill-name HelloWorld
 # New project for Alexa skill created.
-# This will also create a new folder: ~/alexa-apps/HelloWorld
-
-# At this point we need to exit and re-run so we can set the project (HellowWorold) folder (easier)
-exit
+# This will also create a new folder: ~/alexa-demo/HelloWorld
 
 
-ASK_APP=~/alexa-apps/HelloWorld
+# To help simplify things, map ~/alexa-demo/app/HelloWorld to the /home/node/app folder
+# Note: if we find a better way this will change in the future
+alias alexa="docker run -it --rm \
+  -v ~/alexa-demo/ask-config:/home/node/.ask \
+  -v ~/alexa-demo/aws-config:/home/node/.aws \
+  -v ~/alexa-demo/app/HelloWorld:/home/node/app \
+  martindsouza/amazon-ask-cli:latest "
 
-docker run -it --rm \
-  -v $ASK_CONFIG/ask-config:/home/node/.ask \
-  -v $ASK_APP:/home/node/app-dev \
-  martindsouza/amazon-ask-cli:latest \
-  bash
+# Deploy (all): this will create both lambda and Alexa Skill
+alexa ask deploy
 
-# Deploy Skill
-ask deploy -t skill
-# Success should look like:
 # -------------------- Create Skill Project --------------------
 # Profile for the deployment: [default]
-# Skill Id: amzn1.ask.skill.a....
+# Skill Id: amzn1.ask.skill.55cb6762-4b48-433f-adef-2d6074d06c13
 # Skill deployment finished.
+# Model deployment finished.
+# Lambda deployment finished.
+# Your skill is now deployed and enabled in the development stage.
+# Try invoking the skill by saying “Alexa, open {your_skill_invocation_name}” or simulate an invocation via the `ask simulate` command.
+
+
+# Other options are:
+# alexa ask deploy -t lambda
+# alexa ask deploy -t skill
+# alexa ask deploy -t model
+
+
 ```
+
+## AWS Config (optional)
+If you plan to use [Lambda](https://aws.amazon.com/lambda/) you'll need to configure the AWS CLI. To simplify. You can configure it multiple ways.
+
+In either case ensure that you pass in `-v $(pwd)/aws-config:/home/node/.aws \` (where `$(pwd)/aws-config` is a location on your host machine) as an option when running the container to preserve the AWS configuration.
+
+### `aws configure`
+
+Running `aws configure` in the container will ask you a set of questions to create the AWS credentials
+
+### Setting `credentials` and `config` file
+
+Copy the files in [`samples/aws-config`](samples/aws-config) to your local/host folder that will hold the credentials. You need to modify the `credentials` file with your `aws_access_key_id` and `aws_secret_access_key` at a minimum.
 
 ## Usage
 
@@ -120,8 +162,9 @@ docker run -it --rm \
 
 Path | Description 
 --- | ---
-`/home/node/.ask` | `.ask` configuration folder
-`/home/node/app-dev` | folder where your Alexa project is stored
+`/home/node/.ask` | `.ask` configuration folder for ASK cli
+`/home/node/.aws` | `.aws` configuration folder AWS cli 
+`/home/node/app` | folder where your Alexa project is stored
 
 
 ## Developers
@@ -134,7 +177,6 @@ docker build -t martindsouza/amazon-ask-cli .
 # docker login
 # docker build -t martindsouza/amazon-ask-cli:0.0.1 .
 # docker push martindsouza/amazon-ask-cli
-
 ```
 
 ## Links:
@@ -142,5 +184,3 @@ docker build -t martindsouza/amazon-ask-cli .
 - [ASK CLI Quickstart](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html)
 - [ASK CLI Full Doc](https://developer.amazon.com/docs/smapi/ask-cli-intro.html#alexa-skills-kit-command-line-interface-ask-cli)
 
-
-https://developer.amazon.com/docs/smapi/skill-manifest.html#sslCertificateType-enumeration
