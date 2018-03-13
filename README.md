@@ -80,13 +80,11 @@ alexa ask new --skill-name HelloWorld
 # This will also create a new folder: ~/alexa-demo/HelloWorld
 
 
-# To help simplify things, map ~/alexa-demo/app/HelloWorld to the /home/node/app folder
-# Note: if we find a better way this will change in the future
-alias alexa="docker run -it --rm \
-  -v ~/alexa-demo/ask-config:/home/node/.ask \
-  -v ~/alexa-demo/aws-config:/home/node/.aws \
-  -v ~/alexa-demo/app/HelloWorld:/home/node/app \
-  martindsouza/amazon-ask-cli:latest "
+# Move the HellowWorld folder back to app directory
+cd ~/alexa-demo/app/
+mv HelloWorld/* .
+mv HelloWorld/.ask .
+rmdir HelloWorld
 
 # Deploy (all): this will create both lambda and Alexa Skill
 alexa ask deploy
