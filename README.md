@@ -14,6 +14,7 @@ The purpose of this container is to be able to use the [Amazon ASK CLI (Alexa Sk
     - [Run `bash`, then run `ask`](#run-bash-then-run-ask)
     - [Volumes](#volumes)
   - [Developers](#developers)
+  - [Sample `ask` commands](#sample-ask-commands)
   - [Links:](#links)
 
 <!-- /TOC -->
@@ -47,11 +48,19 @@ alias alexa="docker run -it --rm \
 
 # For windows users you'll need to run the following each time (unless you have an alternative to alias)
 # docker run -it --rm \
-#   -v ~/alexa-demo/ask-config:/home/node/.ask \
-#   -v ~/alexa-demo/aws-config:/home/node/.aws \
-#   -v ~/alexa-demo/app:/home/node/app \
-#   martindsouza/amazon-ask-cli:latest \
-#   <command> 
+# -v C:/%UserProfile%/alexa-demo/ask-config:/home/node/.ask ^
+# -v C:/%UserProfile%/alexa-demo/aws-config:/home/node/.aws ^
+# -v C:/%UserProfile%/alexa-demo/app:/home/node/app ^
+# martindsouza/amazon-ask-cli:latest ^ 
+# <command> 
+
+
+# If using Lambda and want to load your configuration run:
+# alexa aws configure
+#
+# Some parameters to help out:
+# Region: us-east-1
+# Output format: json
 
 
 # Configure ASK
@@ -78,6 +87,9 @@ alexa ask init -l
 alexa ask new --skill-name HelloWorld
 # New project for Alexa skill created.
 # This will also create a new folder: ~/alexa-demo/HelloWorld
+
+# To create a new app with lambda:
+# alexa ask new --skill-name HelloWorld --lambda-name hello-world-service
 
 
 # Move the HellowWorld folder back to app directory
@@ -175,6 +187,13 @@ docker build -t martindsouza/amazon-ask-cli .
 # docker login
 # docker build -t martindsouza/amazon-ask-cli:0.0.1 .
 # docker push martindsouza/amazon-ask-cli
+```
+
+## Sample `ask` commands
+
+```bash
+# Delete skill
+alexa ask api delete-skill -s SKILL_ID
 ```
 
 ## Links:
