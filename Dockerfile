@@ -1,6 +1,6 @@
 # Original source from https://hub.docker.com/_/node/
 FROM node:9.7.1-alpine
-MAINTAINER Martin DSouza <martin@talkapex.com>
+LABEL maintainer="Martin DSouza <martin@talkapex.com>"
 
 
 # NPM_CONFIG_PREFIX: See below
