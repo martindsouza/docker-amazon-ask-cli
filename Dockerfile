@@ -1,5 +1,5 @@
 # Original source from https://hub.docker.com/_/node/
-FROM node:9.7.1-alpine
+FROM node:current-alpine
 LABEL maintainer="Martin DSouza <martin@talkapex.com>"
 
 
